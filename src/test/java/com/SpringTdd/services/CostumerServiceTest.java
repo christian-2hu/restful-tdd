@@ -1,6 +1,9 @@
 package com.SpringTdd.services;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.SpringTdd.models.Costumer;
 import com.SpringTdd.repository.CostumerRepository;
+import com.SpringTdd.services.exceptions.DuplicateEmailException;
 
 @DisplayName("Service layer test.")
 @ExtendWith(MockitoExtension.class)
@@ -47,5 +51,12 @@ public class CostumerServiceTest {
 
         costumerService.save(testCostumer);
         verify(this.costumerRepository).save(testCostumer);
+    }
+
+    @DisplayName("Test if costumer's email already exists")
+    @Test
+    public void shouldNotSaveTwoCostumersWithTheSameEmail() {
+        Mockito.when(this.costumerRepository.findByEmail(costumerEmail)).thenReturn(Optional.of(testCostumer));
+        assertThrows(DuplicateEmailException.class, () -> costumerService.save(testCostumer));
     }
 }
